@@ -20,7 +20,7 @@ app.use(cors());
 // });
 const io = new Server(server, {
   cors: {
-    origin: "https://digital-twin-neon.vercel.app/",
+    origin: "https://digital-twin-neon.vercel.app",
     methods: ["GET", "POST"],
     credentials: true,
   },
