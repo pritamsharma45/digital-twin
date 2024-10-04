@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:3001');
+// const socket = io('http://localhost:3001');
+const socket = io('https://energy-meter-backend.onrender.com');
 
 function EnergyMeter() {
   const [reading, setReading] = useState(1000);
