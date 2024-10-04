@@ -5,7 +5,7 @@ services:
     env: node
     plan: free
     rootDir: backend
-    buildCommand: "cd backend && npm install" 
+    buildCommand: "npm install" 
     startCommand: "node server2.js"
     envVars:
       - key: NODE_ENV

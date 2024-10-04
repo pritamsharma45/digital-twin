@@ -83,7 +83,7 @@ const saveReadingToDb = async (reading) => {
       const newReading = generateReading();
       socket.emit("newReading", newReading);
       saveReadingToDb(newReading);
-    }, 2000);
+    }, 10000);
 
     socket.on("disconnect", () => {
       console.log("User disconnected");
