@@ -6,11 +6,8 @@ services:
     plan: free
     rootDir: backend
     buildCommand: "cd backend && npm install" 
-    startCommand: "node server.js"
+    startCommand: "node server2.js"
     envVars:
       - key: NODE_ENV
         value: production
-    disk:
-      name: persistent_disk
-      mountPath: /data
-      sizeGB: 1
+
