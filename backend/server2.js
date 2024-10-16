@@ -10,17 +10,14 @@ const app = express();
 const server = http.createServer(app);
 
 app.use(cors());
+const ORIGIN =
+  process.env.NODE_ENV === "production"
+    ? "https://digital-twin-neon.vercel.app"
+    : "http://localhost:3000";
 
-// const io = new Server(server, {
-//   cors: {
-//     origin: "http://localhost:3000",
-//     methods: ["GET", "POST"],
-//     credentials: true,
-//   },
-// });
 const io = new Server(server, {
   cors: {
-    origin: "https://digital-twin-neon.vercel.app",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -31,55 +28,69 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Fetch the last saved reading from Supabase on server start
-const fetchLastReading = async () => {
+// Fetch the last saved reading for each meter from Supabase on server start
+const fetchLastReading = async (meter_id) => {
   const { data, error } = await supabase
     .from("readings")
     .select("reading")
+    .eq("meter_id", meter_id)
     .order("id", { ascending: false })
     .limit(1);
 
   if (error) {
-    console.error("Error fetching last reading:", error.message);
+    console.error(
+      `Error fetching last reading for meter ${meter_id}:`,
+      error.message
+    );
     return null;
   }
   return data.length > 0 ? data[0].reading : null;
 };
 
 // Function to generate new reading
-let reading = 1000;
-const generateReading = () => {
-  reading += Math.random() * 10; // Small random changes to the reading
-  return reading.toFixed(2);
+let readings = { 1: 1000, 2: 2000, 3: 3000 }; // Initial readings for 3 meters
+const generateReading = (meter_id) => {
+  readings[meter_id] += Math.random() * 10; // Small random changes to the reading
+  return readings[meter_id];
 };
 
 // Function to save reading to Supabase
-const saveReadingToDb = async (reading) => {
+const saveReadingToDb = async (meter_id, reading) => {
   const timestamp = new Date().toISOString(); // Current timestamp
   const { data, error } = await supabase.from("readings").insert([
     {
       timestamp: timestamp,
+      meter_id: meter_id, // Save meter_id
       reading: reading,
     },
   ]);
 
   if (error) {
-    console.error("Error inserting reading:", error.message);
+    console.error(
+      `Error inserting reading for meter ${meter_id}:`,
+      error.message
+    );
   } else {
-    console.log(`Reading saved: ${reading} at ${timestamp}`);
+    console.log(
+      `Reading for meter ${meter_id} saved: ${reading} at ${timestamp}`
+    );
   }
 };
 
 // Start the server
 (async () => {
-  const lastReading = await fetchLastReading();
-  if (lastReading) {
-    reading = parseFloat(lastReading); // Start from the last saved reading
-    console.log(`Starting with last saved reading: ${reading}`);
-  } else {
-    console.log(
-      `No previous readings found. Starting from default: ${reading}`
-    );
+  for (let meter_id = 1; meter_id <= 3; meter_id++) {
+    const lastReading = await fetchLastReading(meter_id);
+    if (lastReading) {
+      readings[meter_id] = parseFloat(lastReading); // Start from the last saved reading for each meter
+      console.log(
+        `Starting with last saved reading for meter ${meter_id}: ${readings[meter_id]}`
+      );
+    } else {
+      console.log(
+        `No previous readings found for meter ${meter_id}. Starting from default: ${readings[meter_id]}`
+      );
+    }
   }
 
   // WebSocket connection
@@ -87,10 +98,12 @@ const saveReadingToDb = async (reading) => {
     console.log("A user connected");
 
     setInterval(() => {
-      const newReading = generateReading();
-      socket.emit("newReading", newReading);
-      saveReadingToDb(newReading);
-    }, 10000);
+      for (let meter_id = 1; meter_id <= 3; meter_id++) {
+        const newReading = generateReading(meter_id);
+        socket.emit("newReading", { meter_id, reading: newReading }); // Send reading with meter_id
+        saveReadingToDb(meter_id, newReading); // Save to DB with meter_id
+      }
+    }, 2000);
 
     socket.on("disconnect", () => {
       console.log("User disconnected");
