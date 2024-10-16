@@ -4,10 +4,19 @@ Manually Create the Table: Go to your Supabase project, navigate to SQL Editor, 
 
 ```sql
 
-CREATE TABLE IF NOT EXISTS readings (
+CREATE TABLE readings (
   id SERIAL PRIMARY KEY,
-  timestamp TIMESTAMP NOT NULL,
-  reading REAL NOT NULL
+  meter_id VARCHAR(255),
+  reading FLOAT,
+  timestamp TIMESTAMP
 );
 
 ```
+
+
+
+
+ First open two terminals.
+ Then CD into frontend and backend
+ First you need to start the service by running : node server2.js
+ Then start the react app by running : npm run start

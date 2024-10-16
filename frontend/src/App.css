@@ -36,3 +36,119 @@
     transform: rotate(360deg);
   }
 }
+
+
+/* General container */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Title styling */
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Grid layout for meters */
+.meter-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .meter-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Card styling */
+.card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+/* Card header */
+.card-header {
+  background-color: #f0f0f0;
+  padding: 10px;
+}
+
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Status indicator */
+.status-indicator {
+  display: flex;
+  position: relative;
+  width: 12px;
+  height: 12px;
+}
+
+.ping {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #34d399; /* Green */
+  animation: ping-animation 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+  opacity: 0.75;
+}
+
+.dot {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #34d399; /* Green */
+}
+
+/* Animation for the ping effect */
+@keyframes ping-animation {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* Card content */
+.card-content {
+  padding: 20px;
+  background-color: #fff7e6; /* Light orange */
+}
+
+/* Reading display */
+.reading-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #ffcc80; /* Orange */
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 2rem;
+}
+
+.unit {
+  font-size: 1.2rem;
+  color: #666;
+}
