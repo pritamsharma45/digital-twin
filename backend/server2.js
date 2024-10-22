@@ -28,6 +28,13 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Use the provided meter IDs
+let readings = {
+  "SMR-98756-1-A": 1000,
+  "SMR-43563-2-A": 2000,
+  "SMR-65228-1-B": 3000,
+};
+
 // Fetch the last saved reading for each meter from Supabase on server start
 const fetchLastReading = async (meter_id) => {
   const { data, error } = await supabase
@@ -48,7 +55,6 @@ const fetchLastReading = async (meter_id) => {
 };
 
 // Function to generate new reading
-let readings = { 1: 1000, 2: 2000, 3: 3000 }; // Initial readings for 3 meters
 const generateReading = (meter_id) => {
   readings[meter_id] += Math.random() * 10; // Small random changes to the reading
   return readings[meter_id];
@@ -79,10 +85,11 @@ const saveReadingToDb = async (meter_id, reading) => {
 
 // Start the server
 (async () => {
-  for (let meter_id = 1; meter_id <= 3; meter_id++) {
+  // Initialize readings for each predefined meter
+  for (const meter_id of Object.keys(readings)) {
     const lastReading = await fetchLastReading(meter_id);
     if (lastReading) {
-      readings[meter_id] = parseFloat(lastReading); // Start from the last saved reading for each meter
+      readings[meter_id] = parseFloat(lastReading); // Start from the last saved reading
       console.log(
         `Starting with last saved reading for meter ${meter_id}: ${readings[meter_id]}`
       );
@@ -98,7 +105,8 @@ const saveReadingToDb = async (meter_id, reading) => {
     console.log("A user connected");
 
     setInterval(() => {
-      for (let meter_id = 1; meter_id <= 3; meter_id++) {
+      // Iterate over predefined meter IDs
+      for (const meter_id of Object.keys(readings)) {
         const newReading = generateReading(meter_id);
         socket.emit("newReading", { meter_id, reading: newReading }); // Send reading with meter_id
         saveReadingToDb(meter_id, newReading); // Save to DB with meter_id
