@@ -111,7 +111,7 @@ const saveReadingToDb = async (meter_id, reading) => {
         socket.emit("newReading", { meter_id, reading: newReading }); // Send reading with meter_id
         saveReadingToDb(meter_id, newReading); // Save to DB with meter_id
       }
-    }, 2000);
+    }, 5000);
 
     socket.on("disconnect", () => {
       console.log("User disconnected");
