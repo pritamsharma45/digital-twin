@@ -42,7 +42,7 @@ export default function EnergyMeter() {
             </div>
             <div className="card-content">
               <div className="reading-display">
-                <span>{reading.toFixed(2)}</span>
+                <span>{reading}</span>
                 <span className="unit">kWh</span>
               </div>
             </div>
