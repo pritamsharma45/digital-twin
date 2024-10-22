@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:3001");
-// const socket = io("https://energy-meter-backend.onrender.com")
+// const socket = io("http://localhost:3001");
+const socket = io("https://energy-meter-backend.onrender.com");
 
 export default function EnergyMeter() {
   const [readings, setReadings] = useState({
@@ -27,7 +27,7 @@ export default function EnergyMeter() {
 
   return (
     <div className="container">
-      <h1 className="title">Live Energy Meter Readings</h1>
+      <h1 className="title">Digital Twin - Live Energy Meter Readings</h1>
       <div className="meter-grid">
         {Object.entries(readings).map(([meterId, reading]) => (
           <div key={meterId} className="card">
