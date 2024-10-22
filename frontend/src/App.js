@@ -3,29 +3,53 @@
 import React, { useState, useEffect, useCallback } from "react";
 import io from "socket.io-client";
 
+// Define socket connection based on environment
 const socket = io(
   process.env.NODE_ENV === "production"
     ? "https://energy-meter-backend.onrender.com" // Production URL
     : "http://localhost:3001" // Development URL
 );
+
+// Predefined data for suppliers, costs, and tariffs
+let meterData = {
+  "SMR-98756-1-A": {
+    supplier: "Octopus Energy",
+    cost: 23.28, // Cost per kWh in pence
+    tariff: "Fixed", // Tariff type
+  },
+  "SMR-43563-2-A": {
+    supplier: "EDF Energy",
+    cost: 23.28, // Cost per kWh in pence
+    tariff: "Fixed", // Tariff type
+  },
+  "SMR-65228-1-B": {
+    supplier: "E.ON Next",
+    cost: 25.69, // Cost per kWh in pence
+    tariff: "Standard", // Tariff type
+  },
+};
+
 export default function EnergyMeter() {
   const [readings, setReadings] = useState({}); // Start with an empty state
   const [loading, setLoading] = useState(true); // Loading state to track when readings are received
 
-  // Update readings with dynamic meter_id
+  // Update readings with dynamic meter_id and reading data
   const updateReading = useCallback(({ meter_id, reading }) => {
     setReadings((prevReadings) => ({
       ...prevReadings,
-      [meter_id]: reading, // Add/update new meter reading
+      [meter_id]: {
+        ...meterData[meter_id], // Merge meter info (supplier, cost, tariff)
+        reading: reading.toFixed(2), // Store the reading rounded to 2 decimals
+      },
     }));
     setLoading(false); // Stop loading when readings start coming in
   }, []);
 
   useEffect(() => {
-    // Listen for new readings
+    // Listen for new readings from the socket
     socket.on("newReading", updateReading);
 
-    // Cleanup when component unmounts
+    // Cleanup on component unmount
     return () => socket.off("newReading", updateReading);
   }, [updateReading]);
 
@@ -37,7 +61,7 @@ export default function EnergyMeter() {
         <div className="loading">Loading meter readings...</div>
       ) : (
         <div className="meter-grid">
-          {Object.entries(readings).map(([meterId, reading]) => (
+          {Object.entries(readings).map(([meterId, data]) => (
             <div key={meterId} className="card">
               <div className="card-header">
                 <div className="card-title">
@@ -49,18 +73,28 @@ export default function EnergyMeter() {
                 </div>
               </div>
               <div className="card-content">
+                {/* Display the current energy reading */}
                 <div className="reading-display">
-                  <span>{reading.toFixed(2)}</span>
+                  <span>{data.reading}</span>
                   <span className="unit">kWh</span>
                 </div>
-                <div className="reading-display">
-                  <span className="unit">Supplier:</span>
+
+                {/* Display supplier */}
+                <div className="other-display">
+                  <span className="unit2">Supplier:</span>
+                  <span>{data.supplier}</span>
                 </div>
-                <div className="reading-display">
-                  <span className="unit">Tariff:</span>
+
+                {/* Display tariff */}
+                <div className="other-display">
+                  <span className="unit2">Tariff:</span>
+                  <span>{data.tariff}</span>
                 </div>
-                <div className="reading-display">
-                  <span className="unit">Cost kWh:</span>
+
+                {/* Display cost per kWh */}
+                <div className="other-display">
+                  <span className="unit2">Cost per kWh:</span>
+                  <span>{data.cost}p</span>
                 </div>
               </div>
             </div>
