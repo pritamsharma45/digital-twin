@@ -16,16 +16,19 @@ let meterData = {
     supplier: "Octopus Energy",
     cost: 23.28, // Cost per kWh in pence
     tariff: "Fixed", // Tariff type
+    total: 0
   },
   "SMR-43563-2-A": {
     supplier: "EDF Energy",
     cost: 23.28, // Cost per kWh in pence
     tariff: "Fixed", // Tariff type
+    total: 0
   },
   "SMR-65228-1-B": {
     supplier: "E.ON Next",
     cost: 25.69, // Cost per kWh in pence
     tariff: "Standard", // Tariff type
+    total: 0
   },
 };
 
@@ -40,10 +43,16 @@ export default function EnergyMeter() {
       [meter_id]: {
         ...meterData[meter_id], // Merge meter info (supplier, cost, tariff)
         reading: reading.toFixed(2), // Store the reading rounded to 2 decimals
+        total: (reading * meterData[meter_id].cost / 100).toFixed(2) // Calculate total cost
+
       },
+
+
     }));
     setLoading(false); // Stop loading when readings start coming in
   }, []);
+
+
 
   useEffect(() => {
     // Listen for new readings from the socket
@@ -95,6 +104,11 @@ export default function EnergyMeter() {
                 <div className="other-display">
                   <span className="unit2">Cost per kWh:</span>
                   <span>{data.cost}p</span>
+                </div>
+                {/* Calculate Total */}
+                <div className="other-display">
+                  <span className="unit2">Total Cost:</span>
+                  <span>£{(data.total)}</span>
                 </div>
               </div>
             </div>
