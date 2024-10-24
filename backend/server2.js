@@ -104,17 +104,38 @@ const saveReadingToDb = async (meter_id, reading) => {
   io.on("connection", (socket) => {
     console.log("A user connected");
 
-    setInterval(() => {
-      // Iterate over predefined meter IDs
+    const latestReadings = {}; // Store the latest reading for each meter
+
+    // Emit readings every 2 seconds
+    const emitInterval = setInterval(() => {
       for (const meter_id of Object.keys(readings)) {
         const newReading = generateReading(meter_id);
-        socket.emit("newReading", { meter_id, reading: newReading }); // Send reading with meter_id
-        saveReadingToDb(meter_id, newReading); // Save to DB with meter_id
-      }
-    }, 15000);
 
+        // Send the reading to the client
+        socket.emit("newReading", { meter_id, reading: newReading });
+
+        // Store the latest reading for each meter
+        latestReadings[meter_id] = newReading;
+      }
+    }, 2000); // Emit every 2 seconds
+
+    // Save the latest reading to the database every 60 seconds
+    const saveInterval = setInterval(() => {
+      for (const meter_id of Object.keys(latestReadings)) {
+        const latestReading = latestReadings[meter_id];
+
+        // Save the latest reading for the meter to the DB
+        if (latestReading) {
+          saveReadingToDb(meter_id, latestReading);
+        }
+      }
+    }, 60000); // Save every 60 seconds
+
+    // Clean up on socket disconnect
     socket.on("disconnect", () => {
       console.log("User disconnected");
+      clearInterval(emitInterval);
+      clearInterval(saveInterval);
     });
   });
 
