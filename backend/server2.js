@@ -5,11 +5,26 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 const { createClient } = require("@supabase/supabase-js");
 const { env } = require("process");
+const meterRoutes = require("./routes/meterRoutes");
 
 const app = express();
 const server = http.createServer(app);
 
-app.use(cors());
+// Configure CORS with specific options
+app.use(
+  cors({
+    origin: ORIGIN,
+    methods: ["GET", "POST"],
+    credentials: true,
+    allowedHeaders: ["Content-Type"],
+  })
+);
+
+app.use(express.json());
+
+// Move the API routes before the socket.io setup
+app.use("/api", meterRoutes);
+
 const ORIGIN =
   process.env.NODE_ENV === "production"
     ? "https://digital-twin-neon.vercel.app"

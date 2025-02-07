@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@kinde-oss/kinde-auth-react": "^4.0.4"
+  }
+}
