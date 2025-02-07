@@ -22,7 +22,9 @@ const socket = io(
 
 // Predefined data for suppliers, costs, and tariffs
 const APPS_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbwCj9rnnCzWeQqH2uJQJg8A5z7Kn8zBulo-UwxzRDCljB2ox6usvTOcWVw93TlYWbVo/exec";
+  process.env.NODE_ENV === "production"
+    ? process.env.VITE_APPS_SCRIPT_URL
+    : "https://script.google.com/macros/s/AKfycbwCj9rnnCzWeQqH2uJQJg8A5z7Kn8zBulo-UwxzRDCljB2ox6usvTOcWVw93TlYWbVo/exec";
 
 let meterData = {
   "SMR-98756-1-A": {
@@ -231,7 +233,7 @@ export default function EnergyMeter() {
       {/* New Navbar */}
       <nav className="navbar">
         <div className="navbar-brand">
-          <h2>DSS Energy Meter</h2>
+          <h2>Digital Twin</h2>
         </div>
         <div className="navbar-auth">
           <SignedOut>
