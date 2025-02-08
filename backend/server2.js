@@ -10,20 +10,7 @@ const meterRoutes = require("./routes/meterRoutes");
 const app = express();
 const server = http.createServer(app);
 
-// Configure CORS with specific options
-app.use(
-  cors({
-    origin: ORIGIN,
-    methods: ["GET", "POST"],
-    credentials: true,
-    allowedHeaders: ["Content-Type"],
-  })
-);
-
 app.use(express.json());
-
-// Move the API routes before the socket.io setup
-app.use("/api", meterRoutes);
 
 const ORIGIN =
   process.env.NODE_ENV === "production"

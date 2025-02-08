@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef, memo } from "react";
 import io from "socket.io-client";
 import {
   SignedIn,
@@ -12,6 +12,7 @@ import {
 import "./App.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useForm } from "react-hook-form";
 
 // Define socket connection based on environment
 const socket = io(
@@ -47,6 +48,59 @@ let meterData = {
   },
 };
 
+// Simple memoized modal component
+const Modal = memo(
+  ({ value, onChange, onClose, onSend, isSending, meterInfo }) => (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h2>Meter Details - {meterInfo.id}</h2>
+          <button className="close-button" onClick={onClose}>
+            ×
+          </button>
+        </div>
+        <div className="modal-body">
+          <div className="detail-row">
+            <h3>Current Reading</h3>
+            <div className="reading-input-container">
+              <input
+                type="number"
+                value={value}
+                onChange={onChange}
+                className="reading-input"
+                step="0.01"
+                min="0"
+              />
+              <span className="reading-unit">kWh</span>
+            </div>
+          </div>
+          <div className="detail-row">
+            <h3>Supplier Information</h3>
+            <p>Supplier: {meterInfo.supplier}</p>
+            <p>Tariff Type: {meterInfo.tariff}</p>
+          </div>
+          <div className="detail-row">
+            <h3>Cost Calculation</h3>
+            <p>Rate per kWh: {meterInfo.cost}p</p>
+            <p>Total Cost: £{meterInfo.total}</p>
+          </div>
+          <div className="detail-row">
+            <button
+              className="send-reading-button"
+              onClick={onSend}
+              disabled={isSending}
+            >
+              {isSending ? "Sending..." : "Send Meter Reading"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+);
+
+Modal.displayName = "Modal";
+
 export default function EnergyMeter() {
   const [readings, setReadings] = useState({}); // Start with an empty state
   const [loading, setLoading] = useState(true); // Loading state to track when readings are received
@@ -55,18 +109,20 @@ export default function EnergyMeter() {
   const [showModal, setShowModal] = useState(false);
   const { user } = useUser();
   const [isSending, setIsSending] = useState(false);
+  const [modalData, setModalData] = useState(null);
+  const [inputValue, setInputValue] = useState("");
 
   // Update readings with dynamic meter_id and reading data
   const updateReading = useCallback(({ meter_id, reading }) => {
     setReadings((prevReadings) => ({
       ...prevReadings,
       [meter_id]: {
-        ...meterData[meter_id], // Merge meter info (supplier, cost, tariff)
-        reading: reading.toFixed(2), // Store the reading rounded to 2 decimals
-        total: ((reading * meterData[meter_id].cost) / 100).toFixed(2), // Calculate total cost
+        ...meterData[meter_id],
+        reading: reading.toFixed(2),
+        total: ((reading * meterData[meter_id].cost) / 100).toFixed(2),
       },
     }));
-    setLoading(false); // Stop loading when readings start coming in
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -83,13 +139,29 @@ export default function EnergyMeter() {
     socket.emit("startReading");
     setIsReadingActive(true);
   };
-  const handleMeterSelect = (meterId, data) => {
-    setSelectedMeter({ id: meterId, ...data });
-    setShowModal(true);
-  };
 
-  const handleSendReading = async () => {
-    if (selectedMeter && user) {
+
+  const handleInputChange = useCallback((e) => {
+    const value = e.target.value;
+    setInputValue(value);
+
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue)) {
+      setModalData((prev) => ({
+        ...prev,
+        editedReading: value,
+        total: ((numValue * prev.cost) / 100).toFixed(2),
+      }));
+    }
+  }, []);
+
+  const handleModalClose = useCallback(() => {
+    setShowModal(false);
+    startReading();
+  }, []);
+
+  const handleSendReading = useCallback(async () => {
+    if (modalData && user) {
       setIsSending(true);
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
@@ -101,12 +173,12 @@ export default function EnergyMeter() {
           body: JSON.stringify({
             userEmail: user.primaryEmailAddress.emailAddress,
             meterData: {
-              id: selectedMeter.id,
-              reading: selectedMeter.reading,
-              supplier: selectedMeter.supplier,
-              tariff: selectedMeter.tariff,
-              cost: selectedMeter.cost,
-              total: selectedMeter.total,
+              id: modalData.id,
+              reading: modalData.editedReading,
+              supplier: modalData.supplier,
+              tariff: modalData.tariff,
+              cost: modalData.cost,
+              total: modalData.total,
             },
           }),
         });
@@ -116,6 +188,7 @@ export default function EnergyMeter() {
         if (data.success) {
           toast.success("Meter reading details sent to your email!");
           setShowModal(false);
+          startReading();
         } else {
           throw new Error(data.error || "Failed to send email");
         }
@@ -126,50 +199,37 @@ export default function EnergyMeter() {
         setIsSending(false);
       }
     }
-  };
+  }, [modalData, user]);
 
-  const MeterDetailModal = () => {
-    if (!selectedMeter || !showModal) return null;
+  const handleMeterSelect = useCallback((meterId, data) => {
+    stopReading();
+    const meterSnapshot = {
+      id: meterId,
+      reading: data.reading,
+      supplier: data.supplier,
+      tariff: data.tariff,
+      cost: data.cost,
+      total: data.total,
+      editedReading: data.reading,
+    };
+    setModalData(meterSnapshot);
+    setInputValue(data.reading);
+    setShowModal(true);
+  }, []);
+
+  // Simplified modal rendering
+  const renderModal = () => {
+    if (!modalData || !showModal) return null;
 
     return (
-      <div className="modal-overlay">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h2>Meter Details - {selectedMeter.id}</h2>
-            <button
-              className="close-button"
-              onClick={() => setShowModal(false)}
-            >
-              ×
-            </button>
-          </div>
-          <div className="modal-body">
-            <div className="detail-row">
-              <h3>Current Reading</h3>
-              <p>{selectedMeter.reading} kWh</p>
-            </div>
-            <div className="detail-row">
-              <h3>Supplier Information</h3>
-              <p>Supplier: {selectedMeter.supplier}</p>
-              <p>Tariff Type: {selectedMeter.tariff}</p>
-            </div>
-            <div className="detail-row">
-              <h3>Cost Calculation</h3>
-              <p>Rate per kWh: {selectedMeter.cost}p</p>
-              <p>Total Cost: £{selectedMeter.total}</p>
-            </div>
-            <div className="detail-row">
-              <button
-                className="send-reading-button"
-                onClick={handleSendReading}
-                disabled={isSending}
-              >
-                {isSending ? "Sending..." : "Send Meter Reading"}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Modal
+        value={inputValue}
+        onChange={handleInputChange}
+        onClose={handleModalClose}
+        onSend={handleSendReading}
+        isSending={isSending}
+        meterInfo={modalData}
+      />
     );
   };
 
@@ -281,18 +341,18 @@ export default function EnergyMeter() {
             </SignedOut>
             <SignedIn>
               <MeterGrid isInteractive={true} />
-              <MeterDetailModal />
-            </SignedIn>
+              {renderModal()}
 
-            {isReadingActive ? (
-              <button onClick={() => stopReading()} className="stop-button">
-                Stop
-              </button>
-            ) : (
-              <button onClick={() => startReading()} className="start-button">
-                Start
-              </button>
-            )}
+              {isReadingActive ? (
+                <button onClick={() => stopReading()} className="stop-button">
+                  Stop
+                </button>
+              ) : (
+                <button onClick={() => startReading()} className="start-button">
+                  Start
+                </button>
+              )}
+            </SignedIn>
           </div>
         )}
       </div>
