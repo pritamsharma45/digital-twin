@@ -73,6 +73,13 @@
   margin-bottom: 1.5rem;
 }
 
+/* Add styles for button container */
+.detail-row:last-child {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0;
+}
+
 .detail-row h3 {
   color: #333;
   margin-bottom: 0.5rem;
@@ -86,8 +93,27 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
-  width: 100%;
+  flex: 1;  /* Make buttons take equal space */
   margin-top: 1rem;
+}
+
+/* Add styles for PayPal button */
+.paypal-payment-button {
+  background-color: #0070ba;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  flex: 1;  /* Make buttons take equal space */
+  margin-top: 1rem;
+}
+
+.paypal-payment-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .send-reading-button:hover {

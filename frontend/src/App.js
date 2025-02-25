@@ -50,7 +50,7 @@ let meterData = {
 
 // Simple memoized modal component
 const Modal = memo(
-  ({ value, onChange, onClose, onSend, isSending, meterInfo }) => (
+  ({ value, onChange, onClose, onSend, onPay, isSending, meterInfo }) => (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
@@ -91,6 +91,13 @@ const Modal = memo(
               disabled={isSending}
             >
               {isSending ? "Sending..." : "Send Meter Reading"}
+            </button>
+            <button
+              className="paypal-payment-button"
+              onClick={onPay}
+              disabled={isSending}
+            >
+              Pay £{meterInfo.total}
             </button>
           </div>
         </div>
@@ -139,7 +146,6 @@ export default function EnergyMeter() {
     socket.emit("startReading");
     setIsReadingActive(true);
   };
-
 
   const handleInputChange = useCallback((e) => {
     const value = e.target.value;
@@ -201,6 +207,10 @@ export default function EnergyMeter() {
     }
   }, [modalData, user]);
 
+  const handlePay = useCallback(() => {
+    console.log("Paying £" + modalData.total);
+  }, [modalData]);
+
   const handleMeterSelect = useCallback((meterId, data) => {
     stopReading();
     const meterSnapshot = {
@@ -227,6 +237,7 @@ export default function EnergyMeter() {
         onChange={handleInputChange}
         onClose={handleModalClose}
         onSend={handleSendReading}
+        onPay={handlePay}
         isSending={isSending}
         meterInfo={modalData}
       />
@@ -293,7 +304,7 @@ export default function EnergyMeter() {
       {/* New Navbar */}
       <nav className="navbar">
         <div className="navbar-brand">
-          <h2>Digital Twin</h2>
+          <h2 style={{ fontWeight: "bold", color: "blue" }}>SPYDER</h2>
         </div>
         <div className="navbar-auth">
           <SignedOut>
@@ -306,12 +317,13 @@ export default function EnergyMeter() {
       </nav>
 
       <div className="container">
-        <h1 className="title">Price Comparison Smart Energy Meter Reader</h1>
+        <h2 className="title" style={{ fontWeight: "bold", color: "blue" }}>SPYDER</h2>
+        <h3 className="title">Price Comparison Smart Energy Meter Reader</h3>
         <p>
-          The DSS <strong>Digital Twin Smart Energy Meter Reader</strong>, helps
-          you find the best electricity meter at the most competitive price.
-          Compare diferent meters, check prices and choose the right option to
-          save on energy bills.
+          The <strong>SPYDER</strong> Digital Twin Smart Energy Meter Reader,
+          helps you find the best electricity meter at the most competitive
+          price. Compare diferent meters, check prices and choose the right
+          option to save on energy bills.
         </p>
         <SignedOut>
           <p>
