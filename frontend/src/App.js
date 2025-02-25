@@ -24,7 +24,7 @@ const socket = io(
 // Predefined data for suppliers, costs, and tariffs
 const APPS_SCRIPT_URL =
   process.env.NODE_ENV === "production"
-    ? process.env.VITE_APPS_SCRIPT_URL
+    ? "https://script.google.com/macros/s/AKfycbwCj9rnnCzWeQqH2uJQJg8A5z7Kn8zBulo-UwxzRDCljB2ox6usvTOcWVw93TlYWbVo/exec"
     : "https://script.google.com/macros/s/AKfycbwCj9rnnCzWeQqH2uJQJg8A5z7Kn8zBulo-UwxzRDCljB2ox6usvTOcWVw93TlYWbVo/exec";
 
 let meterData = {
