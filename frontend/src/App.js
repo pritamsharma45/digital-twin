@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 // Define socket connection based on environment
 const socket = io(
   process.env.NODE_ENV === "production"
-    ? process.env.BACKEND_URL
+    ? "https://energy-meter-backend.onrender.com" // Production URL
     : "http://localhost:3001" // Development URL
 );
 
@@ -317,7 +317,9 @@ export default function EnergyMeter() {
       </nav>
 
       <div className="container">
-        <h2 className="title" style={{ fontWeight: "bold", color: "blue" }}>SPYDER</h2>
+        <h2 className="title" style={{ fontWeight: "bold", color: "blue" }}>
+          SPYDER
+        </h2>
         <h3 className="title">Price Comparison Smart Energy Meter Reader</h3>
         <p>
           The <strong>SPYDER</strong> Digital Twin Smart Energy Meter Reader,
