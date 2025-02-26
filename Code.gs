@@ -1,12 +1,12 @@
 function doPost(e) {
-    try {
+  try {
     const data = JSON.parse(e.postData.contents);
     const { userEmail, meterData } = data;
     const subject = "Your Energy Meter Reading Details";
     const htmlBody = `
       <h2>Energy Meter Reading Details</h2>
       <p>Here are your meter reading details for ${meterData.id}:</p>
-      
+      <p>Customer Account Number: ${meterData.accountNumber}</p>
       <div style="margin: 20px 0; padding: 20px; background-color: #f8f9fa; border-radius: 5px;">
         <h3>Current Reading: ${meterData.reading} kWh</h3>
         <p><strong>Supplier:</strong> ${meterData.supplier}</p>
@@ -19,17 +19,20 @@ function doPost(e) {
     `;
 
     GmailApp.sendEmail(userEmail, subject, "", {
-      htmlBody: htmlBody
+      htmlBody: htmlBody,
     });
-    return ContentService.createTextOutput(JSON.stringify({
-      success: true,
-      message: "Email sent successfully"
-    })).setMimeType(ContentService.MimeType.JSON);
-
+    return ContentService.createTextOutput(
+      JSON.stringify({
+        success: true,
+        message: "Email sent successfully",
+      })
+    ).setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
-    return ContentService.createTextOutput(JSON.stringify({
-      success: false,
-      error: error.message
-    })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+      JSON.stringify({
+        success: false,
+        error: error.message,
+      })
+    ).setMimeType(ContentService.MimeType.JSON);
   }
 }

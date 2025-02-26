@@ -45,13 +45,29 @@ let meterData = {
   },
 };
 
+// Add this function near the top of the file, after the meterData declaration
+const generateCustomerAccountNumber = () => {
+  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const length = 10;
+  let result = "ACC-";
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
 // Simple memoized modal component
 const Modal = memo(
   ({ value, onChange, onClose, onSend, onPay, isSending, meterInfo }) => (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h2>Meter Details - {meterInfo.id}</h2>
+          <div>
+            <h2>Meter Details - {meterInfo.id}</h2>
+            <p className="account-number">
+              Customer Account Number: {meterInfo.accountNumber}
+            </p>
+          </div>
           <button className="close-button" onClick={onClose}>
             ×
           </button>
@@ -182,6 +198,7 @@ export default function EnergyMeter() {
               tariff: modalData.tariff,
               cost: modalData.cost,
               total: modalData.total,
+              accountNumber: modalData.accountNumber,
             },
           }),
         });
@@ -218,6 +235,7 @@ export default function EnergyMeter() {
       cost: data.cost,
       total: data.total,
       editedReading: data.reading,
+      accountNumber: generateCustomerAccountNumber(),
     };
     setModalData(meterSnapshot);
     setInputValue(data.reading);
@@ -327,12 +345,11 @@ export default function EnergyMeter() {
         <SignedOut>
           <p>
             Start comparing now and make smarter choices for your electricity
-            usage. Please
+            usage. Please &nbsp;
             <SignInButton mode="modal" className="login-button">
-              {" "}
-              Sign in
+              Sign in &nbsp;
             </SignInButton>
-            and select a Smart Meter!
+            &nbsp;&nbsp; and select a Smart Meter!
           </p>
         </SignedOut>
         <SignedIn>

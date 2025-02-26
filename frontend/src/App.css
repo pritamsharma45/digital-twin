@@ -96,25 +96,24 @@
   flex: 1;  /* Make buttons take equal space */
   margin-top: 1rem;
 }
-
 /* Add styles for PayPal button */
 .paypal-payment-button {
-  background-color: #0070ba;
-  color: white;
+  background-color: #cccccc;
+  color: black;
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 4px;
-  cursor: pointer;
+  cursor: none;
   font-size: 1rem;
   flex: 1;  /* Make buttons take equal space */
   margin-top: 1rem;
-}
-
-.paypal-payment-button:disabled {
+  }
+  
+  .paypal-payment-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
   opacity: 0.7;
-}
+  }
 
 .send-reading-button:hover {
   background-color: #0056b3;
@@ -153,4 +152,15 @@
 .reading-unit {
   font-size: 1rem;
   color: #666;
+}
+
+.account-number {
+  font-size: 0.9em;
+  color: #666;
+  margin: 5px 0 0 0;
+  font-family: monospace;
+}
+
+.modal-header div {
+  flex-grow: 1;
 } 
