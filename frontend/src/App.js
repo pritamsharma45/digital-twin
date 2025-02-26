@@ -17,15 +17,12 @@ import { useForm } from "react-hook-form";
 // Define socket connection based on environment
 const socket = io(
   process.env.NODE_ENV === "production"
-    ? "https://energy-meter-backend.onrender.com" // Production URL
-    : "http://localhost:3001" // Development URL
+    ? process.env.REACT_APP_BACKEND_URL_PROD
+    : process.env.REACT_APP_BACKEND_URL_DEV
 );
 
-// Predefined data for suppliers, costs, and tariffs
-const APPS_SCRIPT_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://script.google.com/macros/s/AKfycbwCj9rnnCzWeQqH2uJQJg8A5z7Kn8zBulo-UwxzRDCljB2ox6usvTOcWVw93TlYWbVo/exec"
-    : "https://script.google.com/macros/s/AKfycbwCj9rnnCzWeQqH2uJQJg8A5z7Kn8zBulo-UwxzRDCljB2ox6usvTOcWVw93TlYWbVo/exec";
+// Apps Script URL from environment variable
+const APPS_SCRIPT_URL = process.env.REACT_APP_APPS_SCRIPT_URL;
 
 let meterData = {
   "SMR-98756-1-A": {
@@ -317,9 +314,9 @@ export default function EnergyMeter() {
       </nav>
 
       <div className="container">
-        <h2 className="title" style={{ fontWeight: "bold", color: "blue" }}>
+        {/* <h2 className="title" style={{ fontWeight: "bold", color: "blue" }}>
           SPYDER
-        </h2>
+        </h2> */}
         <h3 className="title">Price Comparison Smart Energy Meter Reader</h3>
         <p>
           The <strong>SPYDER</strong> Digital Twin Smart Energy Meter Reader,
@@ -332,6 +329,7 @@ export default function EnergyMeter() {
             Start comparing now and make smarter choices for your electricity
             usage. Please
             <SignInButton mode="modal" className="login-button">
+              {" "}
               Sign in
             </SignInButton>
             and select a Smart Meter!
