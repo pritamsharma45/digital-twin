@@ -45,28 +45,23 @@ let meterData = {
   },
 };
 
-// Add this function near the top of the file, after the meterData declaration
-const generateCustomerAccountNumber = () => {
-  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const length = 10;
-  let result = "ACC-";
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-};
-
 // Simple memoized modal component
 const Modal = memo(
-  ({ value, onChange, onClose, onSend, onPay, isSending, meterInfo }) => (
+  ({
+    value,
+    onChange,
+    onClose,
+    onSend,
+    onPay,
+    isSending,
+    meterInfo,
+    onAccountNumberChange,
+  }) => (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
           <div>
             <h2>Meter Details - {meterInfo.id}</h2>
-            <p className="account-number">
-              Customer Account Number: {meterInfo.accountNumber}
-            </p>
           </div>
           <button className="close-button" onClick={onClose}>
             ×
@@ -74,6 +69,18 @@ const Modal = memo(
         </div>
         <div className="modal-body">
           <div className="detail-row">
+            <div className="account-number-input">
+              {/* <label htmlFor="accountNumber">Customer Account Number:</label> */}
+              <h3>Customer Account Number:</h3>
+              <input
+                type="text"
+                id="accountNumber"
+                value={meterInfo.accountNumber}
+                onChange={onAccountNumberChange}
+                placeholder="Enter account number"
+                className="account-input"
+              />
+            </div>
             <h3>Current Reading</h3>
             <div className="reading-input-container">
               <input
@@ -225,6 +232,13 @@ export default function EnergyMeter() {
     console.log("Paying £" + modalData.total);
   }, [modalData]);
 
+  const handleAccountNumberChange = useCallback((e) => {
+    setModalData((prev) => ({
+      ...prev,
+      accountNumber: e.target.value,
+    }));
+  }, []);
+
   const handleMeterSelect = useCallback((meterId, data) => {
     stopReading();
     const meterSnapshot = {
@@ -235,7 +249,7 @@ export default function EnergyMeter() {
       cost: data.cost,
       total: data.total,
       editedReading: data.reading,
-      accountNumber: generateCustomerAccountNumber(),
+      accountNumber: "", // Initialize with empty string instead of generating
     };
     setModalData(meterSnapshot);
     setInputValue(data.reading);
@@ -255,6 +269,7 @@ export default function EnergyMeter() {
         onPay={handlePay}
         isSending={isSending}
         meterInfo={modalData}
+        onAccountNumberChange={handleAccountNumberChange}
       />
     );
   };

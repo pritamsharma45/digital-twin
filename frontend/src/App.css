@@ -133,6 +133,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 .reading-input {
@@ -140,7 +141,7 @@
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 4px;
-  width: 150px;
+  width: 50%;
 }
 
 .reading-input:focus {
@@ -163,4 +164,29 @@
 
 .modal-header div {
   flex-grow: 1;
+}
+
+.account-number-input {
+  margin: 10px 0;
+}
+
+.account-number-input label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.account-input {
+  width: 50%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.account-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
 } 
